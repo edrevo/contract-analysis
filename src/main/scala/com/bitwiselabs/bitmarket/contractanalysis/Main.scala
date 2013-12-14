@@ -1,41 +1,37 @@
 package com.bitwiselabs.bitmarket.contractanalysis
 
+import com.bitwiselabs.bitmarket.contractanalysis.Constants._
 import com.bitwiselabs.bitmarket.contractanalysis.Player._
-import Constants._
 
 object Main {
   type MoveMap = Map[Move, State]
   type History = List[Move]
   type Payoff = Map[Player, Int]
 
-  val optimalSeq = Seq(
-    EnterDepositB(Sam),
+  val optimalSeq = List(
     EnterDepositB(Bob),
-    EnterDepositA(Sam),
+    EnterDepositB(Sam),
     EnterDepositA(Bob),
-    Skip(Sam),
+    EnterDepositA(Sam),
     TransferMoney,
     SignDepositA(Sam),
     SignDepositA(Bob),
     SignDepositB(Sam),
-    SignDepositB(Bob))
-
-  val states: Stream[State] = State(Sam) #:: optimalSeq.view.zip(states).map(p => p._1(p._2)).toStream
+    SignDepositB(Bob),
+    StopPlaying(Sam))
 
   def main(args: Array[String]) {
-    println("Generating tree")
-    val gameTree = generateGameTree(State(Sam))
+    val initialState = State(Bob)
+    println("Generating game tree...")
+    val gameTree = generateGameTree(initialState)
     println("Done")
-    println("Resolving tree")
-    println(resolveTree(gameTree,
-      State(
-        Bob,
-        payoff = Map(Bob -> ValueBob, Sam -> (ValueSam - DepositA + ContractAmount)),
-        paymentMade = true,
-        depositAEntrances = Player.values,
-        depositBEntrances = Player.values,
-        depositASignatures = Set(Sam),
-        depositBSignatures = Player.values)))
+    println(s"Initial state: $initialState")
+    println(s"Desired play moves: ${optimalSeq.mkString("\n ")}")
+    println()
+    println("Resolving tree...")
+    println("Is the desired play moves a dominant strategy? " +
+      resolveTree(gameTree, initialState).contains(optimalSeq.drop(0)))
+    //println(resolveTree(gameTree, initialState).mkString("\n"))
   }
 
   def generateGameTree(initialState: State): Map[State, MoveMap] = {
@@ -43,7 +39,10 @@ object Main {
     var unprocessedStates: Set[State] = Set(initialState)
     while (unprocessedStates.nonEmpty) {
       val state = unprocessedStates.head
-      val moveMap = Move.moves.filter(_.canPlay(state)).map(move => (move, move(state))).toMap
+      val moveMap = (for {
+        move <- Move.moves
+        if move.canPlay(state)
+      } yield (move, move(state))).toMap
       val unseenStates = moveMap.values.filterNot(result.keySet.contains).toSet
       unprocessedStates = (unprocessedStates ++ unseenStates) - state
       result = result.updated(state, moveMap)
@@ -51,31 +50,32 @@ object Main {
     result
   }
 
-  def resolveTree(tree: Map[State, MoveMap], state: State, seen: Set[State] = Set()): Map[History, Payoff] = {
+  val EmptyHistory: History = List()
+
+  def resolveTree(
+      tree: Map[State, MoveMap],
+      state: State,
+      seen: Set[State] = Set()): Map[History, Payoff] = {
     val result: Map[History, Payoff] = if(tree(state).isEmpty) {
-      Map(List() -> state.payoff)
+      Map(EmptyHistory -> state.payoff)
     } else if (seen.contains(state)) {
-      Map(List() -> state.payoff)
+      Map(EmptyHistory -> state.payoff)
     } else {
+      val moveMap = tree(state)
       val subGamePayoffs = for {
-        (move, newState) <- tree(state)
-        subGameResolution = resolveTree(tree, newState, seen + state)
-      } yield subGameResolution.values.map(payoff => payoff(state.playerTurn)).min -> (move, subGameResolution)
-      val maxPlayerPayoff = subGamePayoffs.maxBy(_._1)._1
-      for {
-        (`maxPlayerPayoff`, pair) <- subGamePayoffs
-        (move, resolution) = pair
-        (history, payoff) <- resolution
-      } yield (move :: history) -> payoff
-    }
-    println("---------------")
-    println(state)
-    if (!seen.contains(state) && !tree(state).isEmpty)
-      for ((move, newState) <- tree(state)) {
-        println(">>>>>" + resolveTree(tree, newState, seen + state).toString())
+        (move, newState) <- moveMap
+      } yield {
+        val subGameResolution = resolveTree(tree, newState, seen + state)
+        val minPayoff = subGameResolution.values.map(payoff => payoff(state.playerTurn)).min
+        (move, subGameResolution) -> minPayoff
       }
-    println(s"Options: \n\t${tree(state).keySet.mkString("\n\t")}")
-    println(s"Result: ${result.mkString("\n\t", "\n\t", "")}")
+      val maxMinPlayerPayoff = subGamePayoffs.maxBy(_._2)._2
+      for {
+        ((move, resolution), minPayoff) <- subGamePayoffs
+        if minPayoff == maxMinPlayerPayoff
+        (history, payoff) <- resolution
+      } yield (move :: history).toList -> payoff
+    }
     result
   }
 }
@@ -101,18 +101,31 @@ case class State(
   if (depositBSignatures.nonEmpty)
     require(depositBExists, this)
   require(payoff.values.forall(_ >= 0), this)
+
+  override def toString() =
+    s"""
+      |\tTurn:                          $playerTurn
+      |\tPayoff:                        $payoff
+      |\tMoney transferred made:        $paymentMade
+      |\tPeople who entered deposit A:  $depositAEntrances
+      |\tPeople who entered deposit B:  $depositBEntrances
+      |\tPeople who signed deposit A:   $depositASignatures
+      |\tPeople who signed deposit B:   $depositBSignatures
+      |\tDid any player decide to stop? $finished
+    """.stripMargin
 }
 
 trait Move extends (State => State) {
   val player: Player
-  final def canPlay(state: State): Boolean = state.playerTurn == player && internalCanPlay(state) && !state.finished
+  final def canPlay(state: State): Boolean =
+    state.playerTurn == player && internalCanPlay(state) && !state.finished
   protected def internalCanPlay(state: State): Boolean
-  override def toString: String
+  override def toString(): String
 }
 
 object Move {
   def forPlayers[A](ctor: Player => A) = Player.values.map(ctor)
-  val moves = TransferMoney :: List(EnterDepositA, EnterDepositB, SignDepositA, SignDepositB, Skip, StopPlaying).flatMap(forPlayers)
+  val moves = TransferMoney :: List(EnterDepositA, EnterDepositB, SignDepositA, SignDepositB, StopPlaying).flatMap(forPlayers)
 }
 
 case class EnterDepositA(player: Player) extends Move {
@@ -124,7 +137,7 @@ case class EnterDepositA(player: Player) extends Move {
     else
       newState
   }
-  override def toString = s"Player $player enters deposit A"
+  override def toString() = s"Player $player enters deposit A"
 }
 
 case class EnterDepositB(player: Player) extends Move {
@@ -136,7 +149,7 @@ case class EnterDepositB(player: Player) extends Move {
     else
       newState
   }
-  override def toString = s"Player $player enters deposit B"
+  override def toString() = s"Player $player enters deposit B"
 }
 
 case class SignDepositA(player: Player) extends Move {
@@ -149,7 +162,7 @@ case class SignDepositA(player: Player) extends Move {
       case other => other
     })
 
-  override def toString = s"Player $player signs deposit A"
+  override def toString() = s"Player $player signs deposit A"
 }
 
 case class SignDepositB(player: Player) extends Move {
@@ -161,13 +174,7 @@ case class SignDepositB(player: Player) extends Move {
     else
       newState
   }
-  override def toString = s"Player $player signs deposit B"
-}
-
-case class Skip(player: Player) extends Move {
-  protected def internalCanPlay(state: State) = true
-  def apply(state: State) = state.changeTurn
-  override def toString = s"Player $player skips turn"
+  override def toString() = s"Player $player signs deposit B"
 }
 
 case class StopPlaying(player: Player) extends Move {
@@ -178,11 +185,11 @@ case class StopPlaying(player: Player) extends Move {
 
 object TransferMoney extends Move {
   val player = Bob
-  protected def internalCanPlay(state: State) = !state.paymentMade
+  protected def internalCanPlay(state: State) = !state.paymentMade && state.depositAExists
   def apply(state: State) = state.changeTurn.copy(
     payoff = Map(
       Sam -> (state.payoff(Sam) + ContractAmount),
       Bob -> (state.payoff(Bob) - ContractAmount)),
     paymentMade = true)
-  override def toString = s"Bob transfers money to Sam"
+  override def toString() = s"Bob transfers money to Sam"
 }
