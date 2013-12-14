@@ -2,13 +2,11 @@ package com.bitwiselabs.bitmarket.contractanalysis
 
 import com.bitwiselabs.bitmarket.contractanalysis.Constants._
 import com.bitwiselabs.bitmarket.contractanalysis.Player._
+import java.io.File
 
 object Main {
-  type MoveMap = Map[Move, State]
-  type History = List[Move]
-  type Payoff = Map[Player, Int]
 
-  val optimalSeq = List(
+  val optimalSeq: History = List(
     EnterDepositB(Bob),
     EnterDepositB(Sam),
     EnterDepositA(Bob),
@@ -18,7 +16,8 @@ object Main {
     SignDepositA(Bob),
     SignDepositB(Sam),
     SignDepositB(Bob),
-    StopPlaying(Sam))
+    StopPlaying(Sam)
+  )
 
   def main(args: Array[String]) {
     val initialState = State(Bob)
@@ -29,9 +28,12 @@ object Main {
     println(s"Desired play moves: ${optimalSeq.mkString("\n ")}")
     println()
     println("Resolving tree...")
+    val resolvedTree = resolveTree(gameTree, initialState)
     println("Is the desired play moves a dominant strategy? " +
-      resolveTree(gameTree, initialState).contains(optimalSeq.drop(0)))
+      resolvedTree.contains(optimalSeq))
     //println(resolveTree(gameTree, initialState).mkString("\n"))
+
+    new GameGraph(initialState, gameTree, resolvedTree).writeTo(new File("/tmp/game.dot"))
   }
 
   def generateGameTree(initialState: State): Map[State, MoveMap] = {
@@ -49,8 +51,6 @@ object Main {
     }
     result
   }
-
-  val EmptyHistory: History = List()
 
   def resolveTree(
       tree: Map[State, MoveMap],
@@ -81,7 +81,7 @@ object Main {
 }
 case class State(
     playerTurn: Value,
-    payoff: Main.Payoff = Map(Sam -> ValueSam, Bob -> ValueBob),
+    payoff: Payoff = Map(Sam -> ValueSam, Bob -> ValueBob),
     paymentMade: Boolean = false,
     depositAEntrances: Set[Player] = Set(),
     depositBEntrances: Set[Player] = Set(),
@@ -102,7 +102,7 @@ case class State(
     require(depositBExists, this)
   require(payoff.values.forall(_ >= 0), this)
 
-  override def toString() =
+  override def toString =
     s"""
       |\tTurn:                          $playerTurn
       |\tPayoff:                        $payoff
@@ -121,6 +121,7 @@ trait Move extends (State => State) {
     state.playerTurn == player && internalCanPlay(state) && !state.finished
   protected def internalCanPlay(state: State): Boolean
   override def toString(): String
+  def toShortString: String
 }
 
 object Move {
@@ -138,6 +139,7 @@ case class EnterDepositA(player: Player) extends Move {
       newState
   }
   override def toString() = s"Player $player enters deposit A"
+  override def toShortString = "enter-A"
 }
 
 case class EnterDepositB(player: Player) extends Move {
@@ -150,6 +152,7 @@ case class EnterDepositB(player: Player) extends Move {
       newState
   }
   override def toString() = s"Player $player enters deposit B"
+  override def toShortString = "enter-B"
 }
 
 case class SignDepositA(player: Player) extends Move {
@@ -163,6 +166,7 @@ case class SignDepositA(player: Player) extends Move {
     })
 
   override def toString() = s"Player $player signs deposit A"
+  override def toShortString = "sign-A"
 }
 
 case class SignDepositB(player: Player) extends Move {
@@ -175,12 +179,14 @@ case class SignDepositB(player: Player) extends Move {
       newState
   }
   override def toString() = s"Player $player signs deposit B"
+  override def toShortString = "sign-B"
 }
 
 case class StopPlaying(player: Player) extends Move {
   protected def internalCanPlay(state: State) = true
   def apply(state: State) = state.changeTurn.copy(finished = true)
   override def toString = s"Player $player stops playing"
+  override def toShortString = "stop"
 }
 
 object TransferMoney extends Move {
@@ -192,4 +198,5 @@ object TransferMoney extends Move {
       Bob -> (state.payoff(Bob) - ContractAmount)),
     paymentMade = true)
   override def toString() = s"Bob transfers money to Sam"
+  override def toShortString = "pay-€"
 }
