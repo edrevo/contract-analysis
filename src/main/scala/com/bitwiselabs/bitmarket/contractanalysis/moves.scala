@@ -10,11 +10,31 @@ sealed trait Move extends (State => State) {
   protected def internalCanPlay(state: State): Boolean
   override def toString(): String
   def toShortString: String
+  def tryPlay(state: State): Option[State] = if (canPlay(state)) Some(this(state)) else None
 }
 
 object Move {
-  def forPlayers[A](ctor: Player => A) = Player.values.map(ctor)
-  val moves = TransferMoney :: List(EnterDeposit, SignDepositA, SignDepositB, StopPlaying).flatMap(forPlayers)
+  /** Pack a sequence of moves as a single one */
+  def sequence(moves: Seq[Move]): Move = new Move {
+    require(!moves.isEmpty)
+    override def toShortString: String = moves.map(_.toShortString).mkString(", ")
+    override def apply(initialState: State): State =
+      moves.foldLeft(initialState)((state, move) => move(state))
+    protected override def internalCanPlay(state: State): Boolean = {
+      moves.foldLeft[Option[State]](Some(state)) { (maybeState, move) => move.tryPlay(state) }
+    }.isDefined
+    val player: Player.Player = moves.head.player
+  }
+
+  def forPlayers[A](ctor: Player => A) = Player.values.map(ctor).toList
+
+  val moves = {
+    val commonMoves = List(EnterDeposit, SignDepositB, StopPlaying).flatMap(forPlayers)
+    val depositAMoves =
+      if (hasBobDepositA) forPlayers(SignDepositA)
+      else List(SignDepositA(Sam))
+    TransferMoney :: (commonMoves ++ depositAMoves)
+  }
 }
 
 case class EnterDeposit(player: Player) extends Move {
@@ -36,7 +56,7 @@ case class SignDepositA(player: Player) extends Move {
     depositASignatures = state.depositASignatures + player,
     payoff = state.payoff.collect {
       case (p, v) if p != player && p == Sam => (p, v + DepositA - ContractAmount)
-      case (p, v) if p != player && p == Bob => (p, v + DepositA + ContractAmount)
+      case (p, v) if p != player && p == Bob => (p, v + DepositA + ContractAmount + ConsumerSurplus)
       case other => other
     })
 
@@ -69,7 +89,7 @@ object TransferMoney extends Move {
   protected def internalCanPlay(state: State) = !state.paymentMade && state.depositsExists
   def apply(state: State) = state.changeTurn.copy(
     payoff = Map(
-      Sam -> (state.payoff(Sam) + ContractAmount),
+      Sam -> (state.payoff(Sam) + ContractAmount + ConsumerSurplus),
       Bob -> (state.payoff(Bob) - ContractAmount)),
     paymentMade = true)
   override def toString() = s"Bob transfers money to Sam"
