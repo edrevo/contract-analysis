@@ -14,37 +14,24 @@ sealed trait Move extends (State => State) {
 
 object Move {
   def forPlayers[A](ctor: Player => A) = Player.values.map(ctor)
-  val moves = TransferMoney :: List(EnterDepositA, EnterDepositB, SignDepositA, SignDepositB, StopPlaying).flatMap(forPlayers)
+  val moves = TransferMoney :: List(EnterDeposit, SignDepositA, SignDepositB, StopPlaying).flatMap(forPlayers)
 }
 
-case class EnterDepositA(player: Player) extends Move {
-  protected def internalCanPlay(state: State) = !state.depositAEntrances.contains(player)
+case class EnterDeposit(player: Player) extends Move {
+  protected def internalCanPlay(state: State) = !state.depositEntrances.contains(player)
   def apply(state: State) = {
-    val newState = state.changeTurn.copy(depositAEntrances = state.depositAEntrances + player)
-    if (newState.depositAEntrances == Player.values.toSet)
-      newState.copy(payoff = newState.payoff.mapValues(_ - DepositA))
+    val newState = state.changeTurn.copy(depositEntrances = state.depositEntrances + player)
+    if (newState.depositEntrances == Player.values.toSet)
+      newState.copy(payoff = newState.payoff.mapValues(_ - DepositA - DepositB))
     else
       newState
   }
-  override def toString() = s"Player $player enters deposit A"
-  override def toShortString = "enter-A"
-}
-
-case class EnterDepositB(player: Player) extends Move {
-  protected def internalCanPlay(state: State) = !state.depositBEntrances.contains(player)
-  def apply(state: State) = {
-    val newState = state.changeTurn.copy(depositBEntrances = state.depositBEntrances + player)
-    if (newState.depositBEntrances == Player.values.toSet)
-      newState.copy(payoff = newState.payoff.mapValues(_ - DepositB))
-    else
-      newState
-  }
-  override def toString() = s"Player $player enters deposit B"
-  override def toShortString = "enter-B"
+  override def toString() = s"Player $player enters deposits"
+  override def toShortString = "enter"
 }
 
 case class SignDepositA(player: Player) extends Move {
-  protected def internalCanPlay(state: State) = state.depositAExists && !state.depositASignatures.contains(player)
+  protected def internalCanPlay(state: State) = state.depositsExists && !state.depositASignatures.contains(player)
   def apply(state: State) = state.changeTurn.copy(
     depositASignatures = state.depositASignatures + player,
     payoff = state.payoff.collect {
@@ -58,7 +45,7 @@ case class SignDepositA(player: Player) extends Move {
 }
 
 case class SignDepositB(player: Player) extends Move {
-  protected def internalCanPlay(state: State) = state.depositBExists && !state.depositBSignatures.contains(player)
+  protected def internalCanPlay(state: State) = state.depositsExists && !state.depositBSignatures.contains(player)
   def apply(state: State) = {
     val newState = state.changeTurn.copy(depositBSignatures = state.depositBSignatures + player)
     if (newState.depositBSignatures == Player.values)
@@ -79,7 +66,7 @@ case class StopPlaying(player: Player) extends Move {
 
 object TransferMoney extends Move {
   val player = Bob
-  protected def internalCanPlay(state: State) = !state.paymentMade && state.depositAExists
+  protected def internalCanPlay(state: State) = !state.paymentMade && state.depositsExists
   def apply(state: State) = state.changeTurn.copy(
     payoff = Map(
       Sam -> (state.payoff(Sam) + ContractAmount),

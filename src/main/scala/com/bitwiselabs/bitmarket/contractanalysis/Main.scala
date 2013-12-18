@@ -7,10 +7,8 @@ import com.bitwiselabs.bitmarket.contractanalysis.Player._
 object Main {
 
   val optimalSeq: History = List(
-    EnterDepositB(Bob),
-    EnterDepositB(Sam),
-    EnterDepositA(Bob),
-    EnterDepositA(Sam),
+    EnterDeposit(Bob),
+    EnterDeposit(Sam),
     TransferMoney,
     SignDepositA(Sam),
     SignDepositA(Bob),
@@ -33,7 +31,7 @@ object Main {
       resolvedTree.contains(optimalSeq))
     //println(resolveTree(gameTree, initialState).mkString("\n"))
 
-    new GameGraph(initialState, gameTree, resolvedTree).writeTo(new File("/tmp/game.dot"))
+    new GameGraph(initialState, gameTree, resolvedTree).writeTo(new File("./game.dot"))
   }
 
   def generateGameTree(initialState: State): Map[State, MoveMap] = {
