@@ -49,7 +49,7 @@ class GameGraphviz(
     }
   }
 
-  private def labelOf(state: State) = "%s [%s, %s]".format(
+  private def labelOf(state: State) = "%s [%.2f, %.2f]".format(
     if (isFinal(state)) "Final" else state.nextPlayer,
     state.payoffs(Bob),
     state.payoffs(Sam)

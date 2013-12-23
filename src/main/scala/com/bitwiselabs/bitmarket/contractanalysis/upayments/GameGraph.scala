@@ -61,6 +61,7 @@ object Action {
     Wait(Bob),
     Offer,
     Sign,
+    Pay,
     PayAndOffer,
     Publish
   )
@@ -103,26 +104,35 @@ case object Offer extends Action {
     super.canPlay(state) && state.uPaymentChannelsExist && !state.unresponsiveSam && nonNegativeAmounts && feasibleTotalAmount
   }
   override def play(state: State): State = {
-    // TODO: fix last iteration
     state.copy(lastOffer = Some(nextOffer(state))).changeTurn
   }
   
-  private def nextOffer(state: State) = 
-    psum(state.lastOffer.getOrElse(defaultLastOffer), Map(Bob -> ContractStep, Sam -> (-ContractStep)))
+  private def nextOffer(state: State) = {
+    val newOffer = psum(state.lastOffer.getOrElse(defaultLastOffer), Map(Bob -> ContractStep, Sam -> (-ContractStep)))
+    if (newOffer(Sam) == BigDecimal(0)) {
+      psum(newOffer, Map(Bob -> ContractStep, Sam -> 0))
+    } else {
+      newOffer
+    }
+  }
 }
 
 case object Sign extends Action {
   override val player = Sam
-  override def canPlay(state: State) = super.canPlay(state) && state.lastOffer.isDefined
+  override def canPlay(state: State) = super.canPlay(state) && state.lastOffer.isDefined && state.lastOffer != state.lastSignedOffer
   override def play(state: State): State = state.signOffer.changeTurn
+}
+
+case object Pay extends Action {
+  override val player = Bob
+  override def canPlay(state: State) = super.canPlay(state) && state.uPaymentChannelsExist && state.amountPaid < ContractAmount
+  override def play(state: State): State = state.pay.changeTurn
 }
 
 case object PayAndOffer extends Action {
   override val player = Bob
   override def canPlay(state: State) = {
-    val canPay = super.canPlay(state) && state.uPaymentChannelsExist && state.amountPaid < ContractAmount
-    val canOffer = Offer.canPlay(state.pay)
-    canPay && canOffer
+    Pay.canPlay(state) && Offer.canPlay(Pay.play(state).changeTurn)
   }
-  override def play(state: State): State = Offer.play(state.pay)
+  override def play(state: State): State = Offer.play(Pay.play(state).changeTurn)
 }

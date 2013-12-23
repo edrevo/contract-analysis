@@ -5,14 +5,14 @@ import com.bitwiselabs.bitmarket.contractanalysis.Player._
 object Constants {
   val N = 10
   val ContractAmount: Payoff = 100
+  val ContractStep = ContractAmount / N
   val ChannelAmounts: Payoffs = Map(
-    Bob -> ContractAmount / N,
+    Bob -> ContractStep,
     Sam -> ContractAmount
   )
-  val ContractStep = ContractAmount / N
   val InitialValues: Payoffs = Map(
     Bob -> (ContractAmount + ChannelAmounts(Bob)),
     Sam -> ChannelAmounts(Sam)
   )
-  val ConsumerSurplus = BigDecimal.valueOf(0) / 100
+  val ConsumerSurplus = BigDecimal(1) / (N - 1)
 }
