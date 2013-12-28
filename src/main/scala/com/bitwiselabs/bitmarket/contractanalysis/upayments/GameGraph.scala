@@ -1,7 +1,5 @@
 package com.bitwiselabs.bitmarket.contractanalysis.upayments
 
-import com.bitwiselabs.bitmarket.contractanalysis.Player._
-import Constants._
 import scala.annotation.tailrec
 
 object GameGraph {
@@ -34,8 +32,11 @@ object GameGraph {
 
   def resolveGraph(initialState: State, graph: GameGraph): Set[History] = {
 
+    var seen: Map[State, Map[History, Payoffs]] = Map.empty
+
     def resolve(state: State): Map[History, Payoffs] =
       if (graph(state).isEmpty) Map(EmptyHistory -> state.payoffs)
+      else if (seen.contains(state)) seen(state)
       else {
         val subGraphPayoffs: Seq[(Payoff, Action, Map[History, Payoffs])] = for {
           (action, childState) <- graph(state).toSeq
@@ -43,96 +44,14 @@ object GameGraph {
           minPayoff = bestStrategies.values.map(payoffs => payoffs(state.nextPlayer)).min
         } yield (minPayoff, action, bestStrategies)
         val bestMinPayoff = subGraphPayoffs.maxBy(_._1)._1
-        (for {
+        val result = (for {
           (`bestMinPayoff`, action, bestStrategies) <- subGraphPayoffs
           (history, payoffs) <- bestStrategies
         } yield (action :: history) -> payoffs).toMap
+        seen = seen.updated(state, result)
+        result
       }
 
     resolve(initialState).keySet
   }
-}
-
-object Action {
-  val all: Seq[Action] = Seq(
-    Enter(Sam),
-    Enter(Bob),
-    Wait(Sam),
-    Wait(Bob),
-    Offer,
-    Sign,
-    Pay,
-    PayAndOffer,
-    Publish
-  )
-}
-
-sealed trait Action {
-  val player: Player
-  def canPlay(state: State): Boolean =
-    (state.nextPlayer == player) && !(state.nextPlayer == Sam && state.unresponsiveSam) &&
-      !state.timedOut && !state.lastOfferPublished
-  def play(state: State): State
-}
-
-case class Enter(player: Player) extends Action {
-  override def canPlay(state: State) = super.canPlay(state) && !state.uPaymentChannels.contains(player)
-  def play(state: State): State = state.enter(player).changeTurn
-}
-
-case class Wait(player: Player) extends Action{
-  override def canPlay(state: State) = super.canPlay(state) && state.uPaymentChannelsExist
-  def play(state: State): State = player match {
-    case Bob => state.copy(timedOut = true).changeTurn
-    case Sam => state.copy(unresponsiveSam = true).changeTurn
-  }
-}
-
-case object Publish extends Action {
-  override val player = Bob
-  override def canPlay(state: State) = super.canPlay(state) && state.lastSignedOffer.isDefined
-  override def play(state: State): State = state.copy(lastOfferPublished = true).changeTurn
-}
-
-case object Offer extends Action {
-  val defaultLastOffer: Payoffs = Map(Bob -> 0, Sam -> ContractAmount)
-  override val player = Bob
-  override def canPlay(state: State) = {
-    val offer = nextOffer(state)
-    val nonNegativeAmounts = offer.values.forall(_ >= 0)
-    val feasibleTotalAmount = offer.values.sum <= ChannelAmounts.values.sum
-    super.canPlay(state) && state.uPaymentChannelsExist && !state.unresponsiveSam && nonNegativeAmounts && feasibleTotalAmount
-  }
-  override def play(state: State): State = {
-    state.copy(lastOffer = Some(nextOffer(state))).changeTurn
-  }
-  
-  private def nextOffer(state: State) = {
-    val newOffer = psum(state.lastOffer.getOrElse(defaultLastOffer), Map(Bob -> ContractStep, Sam -> (-ContractStep)))
-    if (newOffer(Sam) == BigDecimal(0)) {
-      psum(newOffer, Map(Bob -> ContractStep, Sam -> 0))
-    } else {
-      newOffer
-    }
-  }
-}
-
-case object Sign extends Action {
-  override val player = Sam
-  override def canPlay(state: State) = super.canPlay(state) && state.lastOffer.isDefined && state.lastOffer != state.lastSignedOffer
-  override def play(state: State): State = state.signOffer.changeTurn
-}
-
-case object Pay extends Action {
-  override val player = Bob
-  override def canPlay(state: State) = super.canPlay(state) && state.uPaymentChannelsExist && state.amountPaid < ContractAmount
-  override def play(state: State): State = state.pay.changeTurn
-}
-
-case object PayAndOffer extends Action {
-  override val player = Bob
-  override def canPlay(state: State) = {
-    Pay.canPlay(state) && Offer.canPlay(Pay.play(state).changeTurn)
-  }
-  override def play(state: State): State = Offer.play(Pay.play(state).changeTurn)
 }

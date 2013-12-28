@@ -1,7 +1,7 @@
 package com.bitwiselabs.bitmarket.contractanalysis.upayments
 
 import com.bitwiselabs.bitmarket.contractanalysis.Player._
-import Constants._
+import com.bitwiselabs.bitmarket.contractanalysis.upayments.Constants._
 
 case class State(
   nextPlayer: Player,
@@ -34,6 +34,11 @@ case class State(
       p = psum(p, ChannelAmounts)
     }
     p
+  }
+
+  lazy val otherPlayer = nextPlayer match {
+    case Bob => Sam
+    case Sam => Bob
   }
 
   def changeTurn = this.copy(nextPlayer = nextPlayer match {
