@@ -28,7 +28,8 @@ sealed trait Action {
   val player: Player
   final def canPlay(state: State): Boolean = {
     val stateIndex = happyStates.indexOf(state)
-    val isValidIfStandard = !isStandard(player) || (stateIndex != -1 && this == happyPath.drop(stateIndex).headOption.getOrElse(null))
+    val isValidIfStandard = !isStandard(player) ||
+      (stateIndex != -1 && this == happyPath.drop(stateIndex).headOption.getOrElse(null))
     (state.nextPlayer == player) && !(state.nextPlayer == Sam && state.unresponsiveSam) &&
       !state.timedOut && !state.lastOfferPublished && isValidIfStandard && internalCanPlay(state)
   }
