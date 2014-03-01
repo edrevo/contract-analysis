@@ -1,17 +1,23 @@
-package com.bitwiselabs.bitmarket.contractanalysis.upayments
+package com.bitwiselabs.bitmarket.exchangeanalysis
 
 import scala.annotation.tailrec
 
+import com.bitwiselabs.bitmarket.exchangeanalysis.actions.Action
+
+/** Creates and resolves the complete game graph */
 object GameGraph {
   type Edges = Map[Action, State]
   type GameGraph = Map[State, Edges]
   type History = List[Action]
   val EmptyHistory: History = List.empty
 
-  def generate(initialState: State): GameGraph = {
-
+  /** Generates the compelte game graph given a set of actions and the initial state */
+  def generate(initialState: State, actions: Seq[Action] = Action.all): GameGraph = {
     @tailrec
-    def visit(unseen: Seq[State], seen: GameGraph, maxDepth: Int = Integer.MAX_VALUE): GameGraph = {
+    def visit(
+        unseen: Seq[State],
+        seen: GameGraph,
+        maxDepth: Int = Integer.MAX_VALUE): GameGraph = {
       if (unseen.isEmpty) seen
       else if (maxDepth <= 0) seen ++ unseen.map(s => s -> Map.empty[Action, State]).toMap
       else {
@@ -19,7 +25,7 @@ object GameGraph {
         if (seen.contains(current)) visit(unseen.tail, seen, maxDepth)
         else {
           val children = (for {
-            action <- Action.all if action.canPlay(current)
+            action <- actions if action.canPlay(current)
           } yield action -> action.play(current)).toMap
           val unseenChildren = children.values
           visit(unseen.tail ++ unseenChildren, seen ++ Map(current -> children), maxDepth - 1)
@@ -30,8 +36,8 @@ object GameGraph {
     visit(Seq(initialState), Map.empty)
   }
 
+  /** Calculates the dominant strategy for a given game graph */
   def resolveGraph(initialState: State, graph: GameGraph): Set[History] = {
-
     var seen: Map[State, Map[History, Payoffs]] = Map.empty
 
     def resolve(state: State): Map[History, Payoffs] =
