@@ -1,8 +1,8 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 import java.io.File
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.actions.Action
+import com.coinffeine.analysis.exchangeanalysis.actions.Action
 
 object Main extends App {
   println("Generating game...")

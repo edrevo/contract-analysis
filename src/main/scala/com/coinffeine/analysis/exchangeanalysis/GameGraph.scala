@@ -1,8 +1,8 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 import scala.annotation.tailrec
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.actions.Action
+import com.coinffeine.analysis.exchangeanalysis.actions.Action
 
 /** Creates and resolves the complete game graph */
 object GameGraph {

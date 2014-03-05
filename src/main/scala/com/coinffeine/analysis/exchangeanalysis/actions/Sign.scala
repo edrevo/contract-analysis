@@ -1,7 +1,7 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis.actions
+package com.coinffeine.analysis.exchangeanalysis.actions
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.State
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.State
 
 /** Represents Sam signing Bob's latest offer */
 case object Sign extends Action {

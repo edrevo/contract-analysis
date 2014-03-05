@@ -1,8 +1,8 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis.actions
+package com.coinffeine.analysis.exchangeanalysis.actions
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Constants._
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.{Payoffs, State}
+import com.coinffeine.analysis.exchangeanalysis.Constants._
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.{Payoffs, State}
 
 /** Represents Bob providing a new offer to Sam */
 case object Offer extends Action {

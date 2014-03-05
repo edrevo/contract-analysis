@@ -1,8 +1,8 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 import java.io.{PrintWriter, File}
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Player._
 import GameGraph._
 
 /** Generates a DOT file for a given graph. This file can be opened with GraphViz and can help

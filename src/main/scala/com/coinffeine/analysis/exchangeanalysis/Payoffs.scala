@@ -1,6 +1,6 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Player._
 
 case class Payoffs(val bob: Payoff, val sam: Payoff) extends Seq[Payoff] {
   def apply(player: Player) = player match {

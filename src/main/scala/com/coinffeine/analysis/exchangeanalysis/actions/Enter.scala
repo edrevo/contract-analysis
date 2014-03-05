@@ -1,7 +1,7 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis.actions
+package com.coinffeine.analysis.exchangeanalysis.actions
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.State
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.State
 
 /** This action represents a player committing funds to enable the actual exchange to happen */
 case class Enter(player: Player) extends Action {

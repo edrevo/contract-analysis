@@ -1,8 +1,8 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.Constants._
-import com.bitwiselabs.bitmarket.exchangeanalysis.actions.Action
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Constants._
+import com.coinffeine.analysis.exchangeanalysis.actions.Action
 
 /**
   * Represents the full state of a game's node

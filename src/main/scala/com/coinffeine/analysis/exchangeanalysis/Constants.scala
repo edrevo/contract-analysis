@@ -1,4 +1,4 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 object Constants {
   /** The number of steps in which the exchange will happen */

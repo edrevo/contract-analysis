@@ -1,4 +1,4 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 object Player extends Enumeration {
   type Player = Value

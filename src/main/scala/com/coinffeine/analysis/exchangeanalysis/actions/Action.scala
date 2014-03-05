@@ -1,7 +1,7 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis.actions
+package com.coinffeine.analysis.exchangeanalysis.actions
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.{State, Constants}
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.{State, Constants}
 import Constants._
 
 /** A base trait for all actions */

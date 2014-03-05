@@ -1,9 +1,9 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis
+package com.coinffeine.analysis.exchangeanalysis
 
 import org.scalatest.{MustMatchers, FlatSpec}
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.Constants._
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Constants._
 
 class StateTest extends FlatSpec with MustMatchers {
 

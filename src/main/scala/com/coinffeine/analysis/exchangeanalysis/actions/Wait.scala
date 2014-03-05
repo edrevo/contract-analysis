@@ -1,7 +1,7 @@
-package com.bitwiselabs.bitmarket.exchangeanalysis.actions
+package com.coinffeine.analysis.exchangeanalysis.actions
 
-import com.bitwiselabs.bitmarket.exchangeanalysis.Player._
-import com.bitwiselabs.bitmarket.exchangeanalysis.State
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.State
 
 /** This is a "skip" move. Whoever plays it does nothing for the turn */
 case class Wait(player: Player) extends Action {
