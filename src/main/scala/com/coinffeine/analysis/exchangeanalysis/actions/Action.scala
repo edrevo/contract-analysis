@@ -14,7 +14,7 @@ trait Action {
   final def canPlay(state: State): Boolean = {
     val isValidIfStandard =
       if (isStandard(player)) {
-        val stateIndex = happyStates.indexOf(state)
+        val stateIndex = State.happyStates.indexOf(state)
         val stateIsPartOfHappyPath = stateIndex != -1
         val actionCreatesNextHappyState = this == happyPath.drop(stateIndex).headOption.orNull
         stateIsPartOfHappyPath && actionCreatesNextHappyState
