@@ -1,9 +1,9 @@
-package com.bitwiselabs.bitmarket.contractanalysis.upayments
+package com.coinffeine.analysis.exchangeanalysis
 
 import org.scalatest.{MustMatchers, FlatSpec}
 
-import com.bitwiselabs.bitmarket.contractanalysis.Player._
-import Constants._
+import com.coinffeine.analysis.exchangeanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Constants._
 
 class StateTest extends FlatSpec with MustMatchers {
 
@@ -13,24 +13,24 @@ class StateTest extends FlatSpec with MustMatchers {
   }
 
   it must "be affected by the amount paid" in {
-    State.initialState(Sam).pay.payoffs must equal (Map(
-      Bob -> (InitialValues(Bob) - ContractStep),
-      Sam -> (InitialValues(Sam) + ContractStep * (1 + ConsumerSurplus))
+    State.initialState(Sam).pay.payoffs must equal (Payoffs(
+      bob = InitialValues(Bob) - ContractStep,
+      sam = InitialValues(Sam) + ContractStep * (1 + ConsumerSurplus)
     ))
   }
 
   it must "be affected when transactions are published" in {
-    val offer = Some(Map(
-      Bob -> BigDecimal.valueOf(7),
-      Sam -> BigDecimal.valueOf(5)
+    val offer = Some(Payoffs(
+      bob = BigDecimal.valueOf(7),
+      sam = BigDecimal.valueOf(5)
     ))
     val state = State.initialState(Sam).copy(
       lastOffer = offer,
       lastSignedOffer = offer,
       lastOfferPublished = true)
-    state.payoffs must equal (Map(
-      Bob -> (InitialValues(Bob) + (7 * (1 + ConsumerSurplus))),
-      Sam -> (InitialValues(Sam) + 5)
+    state.payoffs must equal (Payoffs(
+      bob = InitialValues(Bob) + (7 * (1 + ConsumerSurplus)),
+      sam = InitialValues(Sam) + 5
     ))
   }
 }

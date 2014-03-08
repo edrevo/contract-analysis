@@ -1,10 +1,13 @@
-package com.bitwiselabs.bitmarket.contractanalysis.upayments
+package com.coinffeine.analysis.exchangeanalysis
 
 import java.io.{PrintWriter, File}
 
-import com.bitwiselabs.bitmarket.contractanalysis.Player._
+import com.coinffeine.analysis.exchangeanalysis.Player._
 import GameGraph._
 
+/** Generates a DOT file for a given graph. This file can be opened with GraphViz and can help
+  * visualizing how different parameters affect the game dynamics.
+  */
 class GameGraphviz(
     initialState: State,
     game: GameGraph,
