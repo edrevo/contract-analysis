@@ -72,6 +72,6 @@ object State {
   def initialState(initialPlayer: Player) = State(initialPlayer)
 
   /** The sequence of states the will take place if the exchange happens */
-  val happyStates: List[State] = Action.happyPath.scanLeft(Action.initialState)(
+  lazy val happyStates: List[State] = Action.happyPath.scanLeft(Action.initialState)(
     (state, action) => action.play(state))
 }
