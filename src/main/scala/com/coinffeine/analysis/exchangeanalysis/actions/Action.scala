@@ -16,8 +16,23 @@ trait Action {
       if (isStandard(player)) {
         val stateIndex = State.happyStates.indexOf(state)
         val stateIsPartOfHappyPath = stateIndex != -1
-        val actionCreatesNextHappyState = this == happyPath.drop(stateIndex).headOption.orNull
-        stateIsPartOfHappyPath && actionCreatesNextHappyState
+        if (stateIsPartOfHappyPath) {
+          val actionCreatesNextHappyState = this == happyPath.drop(stateIndex).headOption.orNull
+          actionCreatesNextHappyState
+        } else {
+          // If the player is standard but the other part is misbehaving,
+          // the behavior is special-cased
+          player match {
+            case Bob =>
+              if (state.amountPaid == BigDecimal(0)) {
+                this == Wait(Bob)
+              } else {
+                this == Publish
+              }
+            case Sam =>
+              this == Wait(Sam)
+          }
+        }
       }
       else true
     val isPlayersTurn = state.nextPlayer == player
