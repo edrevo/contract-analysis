@@ -25,7 +25,6 @@ class StateTest extends FlatSpec with MustMatchers {
       sam = BigDecimal.valueOf(5)
     ))
     val state = State.initialState(Sam).copy(
-      lastOffer = offer,
       lastSignedOffer = offer,
       lastOfferPublished = true)
     state.payoffs must equal (Payoffs(
