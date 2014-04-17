@@ -20,11 +20,9 @@ case object Sign extends Action {
     state.uPaymentChannelsExist && !state.unresponsiveSam &&
       nonNegativeAmounts && feasibleTotalAmount && state.lastSignedOffer != Some(FinalOffer)
   }
-  override def play(state: State): State = {
-    val newOffer = nextOffer(state)
-    val newState = state.copy(lastSignedOffer = Some(newOffer)).changeTurn
-    newState
-  }
+
+  override def play(state: State): State = state.signOffer(nextOffer(state)).changeTurn
+
   private def nextOffer(state: State) = {
     val newOffer = state.lastSignedOffer.getOrElse(defaultFirstOffer) + exchangeDelta
     if(newOffer(Sam) < 0) FinalOffer

@@ -59,6 +59,8 @@ case class State(
     case Sam => Bob
   })
 
+  def signOffer(offer: Payoffs): State = copy(lastSignedOffer = Some(offer))
+
   def pay = this.copy(amountPaid = amountPaid + ContractStep)
 
   def enter(player: Player) = this.copy(playersInUPaymentChannels = playersInUPaymentChannels + player)
