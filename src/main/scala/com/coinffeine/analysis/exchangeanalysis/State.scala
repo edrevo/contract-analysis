@@ -43,7 +43,8 @@ case class State(
       payoffs = payoffs.copy(bob = payoffs(Bob) + lastSignedOffer.get.apply(Bob) * ConsumerSurplus)
     }
     if (timedOut) {
-      payoffs = payoffs + ChannelAmounts
+      val reimbursements = ChannelAmounts - Payoffs(bob = ContractStep, sam = ContractStep)
+      payoffs = payoffs + reimbursements
     }
     payoffs
   }
