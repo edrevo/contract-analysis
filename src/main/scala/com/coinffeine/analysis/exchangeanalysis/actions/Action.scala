@@ -55,19 +55,17 @@ object Action {
     Enter(Bob),
     Wait(Sam),
     Wait(Bob),
-    Offer,
     Sign,
     Pay,
-    PayAndOffer,
     Publish
   )
 
   /** The initial state for the game */
-  val initialState = State.initialState(Bob)
+  val initialState = State.initialState(Sam)
 
   /** The sequence of actions that need to take place for the exchange to happen */
   val happyPath: List[Action] =
-    List(Enter(Bob), Enter(Sam), Offer, Sign) ++ List.fill(Steps)(List(PayAndOffer, Sign)).flatten ++
+    List(Enter(Sam), Enter(Bob), Sign) ++ List.fill(Steps)(List(Pay, Sign)).flatten ++
       List(Publish)
 
   /** A map that determines if a player is using the standard client or not.

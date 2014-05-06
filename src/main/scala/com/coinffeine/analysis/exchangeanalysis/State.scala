@@ -10,7 +10,6 @@ import com.coinffeine.analysis.exchangeanalysis.actions.Action
   * @param nextPlayer The player that will play the next action
   * @param playersInUPaymentChannels The set of players that have entered the micro-payment channel
   * @param amountPaid How much fiat money has Bob paid to Sam
-  * @param lastOffer The last transaction Bob offered Sam
   * @param lastSignedOffer The last of Bob's offers that Sam signed
   * @param lastOfferPublished The transaction that Bob decided to publish
   * @param unresponsiveSam Whether Sam has decided to abandon the game
@@ -21,7 +20,6 @@ case class State(
     nextPlayer: Player,
     playersInUPaymentChannels: Set[Player] = Set.empty,
     amountPaid: Payoff = 0,
-    lastOffer: Option[Payoffs] = None,
     lastSignedOffer: Option[Payoffs] = None,
     lastOfferPublished: Boolean = false,
     unresponsiveSam: Boolean = false,
@@ -61,7 +59,7 @@ case class State(
     case Sam => Bob
   })
 
-  def signOffer = this.copy(lastSignedOffer = lastOffer)
+  def signOffer(offer: Payoffs): State = copy(lastSignedOffer = Some(offer))
 
   def pay = this.copy(amountPaid = amountPaid + ContractStep)
 
