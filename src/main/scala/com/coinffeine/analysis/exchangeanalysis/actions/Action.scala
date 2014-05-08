@@ -27,7 +27,7 @@ trait Action {
               if (state.amountPaid == BigDecimal(0)) {
                 this == Wait(Bob)
               } else {
-                this == Publish
+                this == Wait(Bob) || this == Publish
               }
             case Sam =>
               this == Wait(Sam)

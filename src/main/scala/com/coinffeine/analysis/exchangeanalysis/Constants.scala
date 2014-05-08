@@ -3,8 +3,6 @@ package com.coinffeine.analysis.exchangeanalysis
 object Constants {
   /** The number of steps in which the exchange will happen */
   val Steps = 10
-  /** The amount of clients that are not running the standard client */
-  val CorruptionRatio = BigDecimal(0)
   /** The principal we want to exchange */
   val ContractAmount: Payoff = 100
   /** The amount of value that will be exchanged on each step */
@@ -13,7 +11,7 @@ object Constants {
   val DepositAmounts: Payoffs = Payoffs(
     bob = 2 * ContractStep,
     sam = ContractStep)
-  /** The amount of bitcoins that will be commited into the micropayment channel */
+  /** The amount of bitcoins that will be committed into the micropayment channel */
   val ChannelAmounts: Payoffs = DepositAmounts + Payoffs(
     bob = 0,
     sam = ContractAmount)
