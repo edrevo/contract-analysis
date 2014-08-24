@@ -22,12 +22,14 @@ object Main {
   def standardGame() = game.plausibleTree(Set(StandardSam, StandardBob).map(_.allowedActions))
 
   def main(args: Array[String]) {
-    val tree = standardGame()
+    val tree = analyzeStandardBobVersusRationalPlayer()
 
     println("Game tree:")
     println(tree)
     println("Dominant strategies")
     println(tree.dominantStrategies)
+    val allIsGood = tree.dominantStrategies.contains(game.happyPath)
+    println(s"All is good: $allIsGood")
     new GameTreeVisualization(tree, game.happyPath, tree.dominantStrategies).writeTo("protocol.dot")
   }
 }

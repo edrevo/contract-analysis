@@ -68,7 +68,7 @@ case class PublishedState(amountPaid: Payoff, stepsSigned: Int)
   },
   payoffs = {
     import parameters._
-    Balances(btc = offers(stepsSigned - 1), fiat = fiatAmounts).pay(amountPaid)
+    Balances(btc = offers(stepsSigned - 1), fiat = fiatAmounts, parameters.feePolicy).pay(amountPaid)
       .utilities(consumerSurplus)
   }
 ) {
@@ -129,7 +129,8 @@ case class ExchangingState(
   }
 
   override def payoffs: Payoffs =
-    Balances(btc = Payoffs.zero, fiat = fiatAmounts).pay(amountPaid).utilities(consumerSurplus)
+    Balances(btc = Payoffs.zero, fiat = fiatAmounts, parameters.feePolicy).pay(amountPaid)
+      .utilities(consumerSurplus)
 
   /** True if the actual exchange can begin */
   def uPaymentChannelsExist: Boolean = true

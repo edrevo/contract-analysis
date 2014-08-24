@@ -10,11 +10,13 @@ import coinffeine.analysis.{Payoff, Payoffs}
   * @param consumerSurplus   The percentage of how much each player values the currency they don't
   *                          own. For example, a value of 0.1 means that Bob values 1 BTC like 1.1
   *                          fiat units and Sam values 1 fiat unit like 1.1 BTC
+  * @param feePolicy           Fee the payment processor charges, as a percentage
   */
 case class Parameters(
   steps: Int = 10,
   contractAmount: Payoff = 100,
-  consumerSurplus: BigDecimal = 0) {
+  consumerSurplus: BigDecimal = 0.06,
+  feePolicy: FeePolicy = new SellerPaidFee(0.05)) {
 
   require(steps > 0)
   require(contractAmount > 0)
@@ -40,7 +42,7 @@ case class Parameters(
   )
 
   /** The total amount of value each player needs in order to enter the exchange */
-  val initialBalances: Balances = Balances(btcAmounts, fiatAmounts)
+  val initialBalances: Balances = Balances(btcAmounts, fiatAmounts, feePolicy)
   val initialValues: Payoffs = initialBalances.utilities(consumerSurplus)
 
   val refundPenalization: Payoffs = Payoffs(contractStep, contractStep)
