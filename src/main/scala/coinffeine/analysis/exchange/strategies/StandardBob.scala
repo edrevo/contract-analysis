@@ -1,7 +1,7 @@
-package com.coinffeine.analysis.exchange.strategies
+package coinffeine.analysis.exchange.strategies
 
-import com.coinffeine.analysis.{Bob, GameState, PureStrategy}
-import com.coinffeine.analysis.exchange._
+import coinffeine.analysis.{Bob, GameState, PureStrategy}
+import coinffeine.analysis.exchange._
 
 object StandardBob extends PureStrategy[ExchangeAction] {
 

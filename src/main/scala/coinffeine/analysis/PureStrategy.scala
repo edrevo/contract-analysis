@@ -1,4 +1,4 @@
-package com.coinffeine.analysis
+package coinffeine.analysis
 
 trait PureStrategy[Action] {
 

@@ -1,4 +1,4 @@
-package com.coinffeine.analysis
+package coinffeine.analysis
 
 case class Payoffs(bob: Payoff, sam: Payoff) extends Seq[Payoff] {
 

@@ -1,8 +1,8 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
-import com.coinffeine.analysis.{Bob, AllowedActions, Sam}
-import com.coinffeine.analysis.exchange.strategies.{StandardBob, StandardSam}
-import com.coinffeine.analysis.graphviz.GameTreeVisualization
+import coinffeine.analysis.{Bob, AllowedActions, Sam}
+import coinffeine.analysis.exchange.strategies.{StandardBob, StandardSam}
+import coinffeine.analysis.graphviz.GameTreeVisualization
 
 object Main {
 

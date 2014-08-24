@@ -1,4 +1,4 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
 sealed trait ExchangeAction
 

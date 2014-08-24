@@ -1,8 +1,8 @@
-package com.coinffeine.analysis.graphviz
+package coinffeine.analysis.graphviz
 
 import java.io.{File, PrintWriter}
 
-import com.coinffeine.analysis._
+import coinffeine.analysis._
 
 /** Visualize a game tree using graphviz */
 class GameTreeVisualization[Action, G <: Game[Action]](

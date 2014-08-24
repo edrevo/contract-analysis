@@ -1,7 +1,7 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
-import com.coinffeine.analysis._
-import com.coinffeine.analysis.Game
+import coinffeine.analysis._
+import coinffeine.analysis.Game
 
 class ExchangeGame(parameters: Parameters)
   extends Game[ExchangeAction](ExchangeState.initial(parameters)) {

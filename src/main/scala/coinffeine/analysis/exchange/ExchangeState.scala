@@ -1,6 +1,6 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
-import com.coinffeine.analysis._
+import coinffeine.analysis._
 
 sealed trait ExchangeState extends GameState[ExchangeAction] {
   override def toString = "%s[%s]".format(currentName, description)

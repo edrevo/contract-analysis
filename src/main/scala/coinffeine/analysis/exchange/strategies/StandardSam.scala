@@ -1,9 +1,9 @@
-package com.coinffeine.analysis.exchange.strategies
+package coinffeine.analysis.exchange.strategies
 
-import com.coinffeine.analysis._
-import com.coinffeine.analysis.exchange._
-import com.coinffeine.analysis.exchange.ExchangingState
-import com.coinffeine.analysis.exchange.HandshakeState
+import coinffeine.analysis._
+import coinffeine.analysis.exchange._
+import coinffeine.analysis.exchange.ExchangingState
+import coinffeine.analysis.exchange.HandshakeState
 
 object StandardSam extends PureStrategy[ExchangeAction] {
 

@@ -1,6 +1,6 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
-import com.coinffeine.analysis.{Payoff, Payoffs}
+import coinffeine.analysis.{Payoff, Payoffs}
 
 /** Parameters of an exchange game.
   *

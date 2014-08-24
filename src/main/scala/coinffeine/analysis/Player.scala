@@ -1,4 +1,4 @@
-package com.coinffeine.analysis
+package coinffeine.analysis
 
 sealed trait Player {
   def otherPlayer: Player
