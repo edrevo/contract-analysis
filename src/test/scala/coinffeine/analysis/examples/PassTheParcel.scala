@@ -1,7 +1,7 @@
-package com.coinffeine.analysis.examples
+package coinffeine.analysis.examples
 
-import com.coinffeine.analysis._
-import com.coinffeine.analysis.graphviz.GameTreeVisualization
+import coinffeine.analysis._
+import coinffeine.analysis.graphviz.GameTreeVisualization
 
 object PassTheParcel {
 

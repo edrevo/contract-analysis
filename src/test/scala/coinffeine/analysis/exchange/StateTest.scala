@@ -1,8 +1,8 @@
-package com.coinffeine.analysis.exchange
+package coinffeine.analysis.exchange
 
 import org.scalatest.{FlatSpec, MustMatchers}
 
-import com.coinffeine.analysis.{Bob, Payoffs}
+import coinffeine.analysis.{Bob, Payoffs}
 
 class StateTest extends FlatSpec with MustMatchers {
 

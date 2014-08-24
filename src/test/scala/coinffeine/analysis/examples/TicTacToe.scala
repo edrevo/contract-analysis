@@ -1,6 +1,6 @@
 package com.coinffeine.analysis.examples
 
-import com.coinffeine.analysis._
+import coinffeine.analysis._
 
 object TicTacToe {
 
