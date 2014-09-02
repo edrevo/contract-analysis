@@ -28,8 +28,7 @@ object Main {
     println(tree)
     println("Dominant strategies")
     println(tree.dominantStrategies)
-    val allIsGood = tree.dominantStrategies.contains(game.happyPath)
-    println(s"All is good: $allIsGood")
-    new GameTreeVisualization(tree, game.happyPath, tree.dominantStrategies).writeTo("protocol.dot")
+    println(s"Is a valid mechanism design: ${tree.containsDesiredStrategy}")
+    new GameTreeVisualization(tree, game.desiredStrategy, tree.dominantStrategies).writeTo("protocol.dot")
   }
 }

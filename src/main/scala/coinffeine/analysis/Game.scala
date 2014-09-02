@@ -2,7 +2,7 @@ package coinffeine.analysis
 
 import scala.annotation.tailrec
 
-case class Game[Action](initialState: GameState[Action]) {
+abstract class Game[Action] {
   type State = GameState[Action]
   type Edges = Map[Action, State]
   val noChildren: Edges = Map.empty
@@ -12,7 +12,7 @@ case class Game[Action](initialState: GameState[Action]) {
     type History = Seq[Action]
     val emptyHistory: History = List.empty
 
-    def stateSet: Set[State] = tree.keySet
+    lazy val stateSet: Set[State] = tree.keySet
 
     def addNonLeaf(state: State, edges: Edges) = GameTree(tree + (state -> edges))
 
@@ -23,7 +23,7 @@ case class Game[Action](initialState: GameState[Action]) {
 
     def contains(state: State) = tree.contains(state)
 
-    def dominantStrategies: Set[History] = {
+    lazy val dominantStrategies: Set[History] = {
       var seen: Map[State, Map[History, Payoffs]] = Map.empty
 
       def resolve(state: State): Map[History, Payoffs] = {
@@ -47,11 +47,20 @@ case class Game[Action](initialState: GameState[Action]) {
 
       resolve(initialState).keySet
     }
+
+    lazy val containsDesiredStrategy: Boolean = dominantStrategies.contains(desiredStrategy)
   }
 
   object GameTree {
     val empty = GameTree(Map.empty)
   }
+
+  val initialState: GameState[Action]
+
+  val desiredStrategy: Seq[Action]
+
+  lazy val desiredStrategyStates: Set[GameState[Action]] =
+    desiredStrategy.scanLeft(initialState)(_.play(_)).toSet
 
   def completeTree(maxDepth: Int = Integer.MAX_VALUE): GameTree = {
 
