@@ -140,7 +140,9 @@ case class ExchangingState(
     else copy(currentPlayer = currentPlayer.otherPlayer)
 
 
-  def amountPaid: Payoff = stepsPaid * parameters.contractStep
+  def amountPaid: Payoff =
+    if (stepsPaid == steps) parameters.contractAmount
+    else stepsPaid * parameters.contractStep
 
   override protected def description: String = {
     val flag = if (unresponsiveSam) Some("unresponsive-sam") else None
